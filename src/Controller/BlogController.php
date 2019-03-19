@@ -10,9 +10,10 @@ namespace App\Controller;
 
 
 use App\Service\Greeting;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\Response;
 
 
 class BlogController extends AbstractController
@@ -30,7 +31,7 @@ class BlogController extends AbstractController
 
 
     /**
-     * @Route("/", name="blog_index")
+     * @Route("/blog", name="blog_index")
      */
     public function index(Request $request)
     {
@@ -38,4 +39,26 @@ class BlogController extends AbstractController
             $request->get('name')
         )]);
     }
+
+
+    /**
+     * @Route("/")
+     */
+    public function homepage()
+    {
+//        return $this->render('base.html.twig');
+        return new Response('IT IS WORK!!!');
+    }
+
+
+    /**
+     * @Route("/news/{slug}")
+     */
+    public function show($slug)
+    {
+        return new Response(sprintf('Future page: %s', $slug));
+    }
+
+
+
 }
