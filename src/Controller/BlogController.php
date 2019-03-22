@@ -2,83 +2,82 @@
 /**
  * Created by PhpStorm.
  * User: Kat
- * Date: 16.03.2019
- * Time: 18:11
+ * Date: 21.03.2019
+ * Time: 21:12
  */
 
 namespace App\Controller;
 
 
-use App\Service\Greeting;
-use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
-
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
-
+/**
+ * @Route("/blog")
+ */
 class BlogController extends AbstractController
 {
 
-    /**
-     * @var Greeting
-     */
-    private $greeting;
 
-    public function __construct(Greeting $greeting)
+    /**
+     * @var SessionInterface
+     */
+    private $session;
+
+    public function __construct(SessionInterface $session)
     {
-        $this->greeting = $greeting;
+
+        $this->session = $session;
     }
 
-
     /**
-     * @Route("/blog", name="blog_index")
+     * @route("/", name="blog_index")
      */
-    public function index(Request $request)
+    public function index()
     {
-        return $this->render('base.html.twig', ['message' => $this->greeting->greet(
-            $request->get('name')
-        )]);
+//        $this->session->clear();
+        return $this->render('blog/index.html.twig',
+            [
+                'posts' => $this->session->get('posts')
+            ]);
+
     }
 
-
     /**
-     * @Route("/", name="index")
+     * @Route("/add", name="blog_add")
      */
-    public function homepage()
+    public function add()
     {
-        return $this->render('article/homepage.html.twig');
-//        return new Response('IT IS WORK!!!');
-    }
-
-
-    /**
-     * @Route("/news/{slug}", name="news.show")
-     */
-    public function show($slug)
-    {
-        $comments = [
-            'I ate a normal rock once. It did NOT taste like bacon!',
-            'Woohoo! I\'m going on an all-asteroid diet!',
-            'I like bacon too! Buy some from my site! bakinsomebacon.com',
+        $posts =  $this->session->get('posts');
+        $posts[uniqid()] = [
+            'title' => 'A random title' . rand(1, 500),
+            'text' => 'Some random text' . rand(1, 500),
+            'date' => new \DateTime(),
         ];
-        return $this->render('article/show.html.twig', [
-            'title' => ucwords(str_replace('-', ' ', $slug)),
-            'comments' => $comments,
-            'slug' => $slug
-        ]);
+        $this->session->set('posts', $posts);
+
+        return $this->redirectToRoute('blog_index');
+
     }
 
     /**
-     * @Route("news/{slug}/heart", name="new_toggle_heart", methods={"POST"})
+     * @Route("/show/{id}", name="blog_show")
      */
-    public function toggleArticleHeart($slug, LoggerInterface $logger)
+    public function show($id)
     {
-        $logger->info("Article is being hearted");
-        return new JsonResponse(['hearts' => rand(5, 100)]);
+        $posts =  $this->session->get('posts');
+        if (!$posts || !isset($posts[$id])) {
+            throw new NotFoundHttpException('Post not found');
+        }
+
+        return $this->render('blog/post.html.twig',
+            [
+                'id' => $id,
+                'post' => $posts[$id],
+            ]);
     }
-
-
 
 }

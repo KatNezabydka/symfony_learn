@@ -31,8 +31,12 @@ services:
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
 
-#    App\Controller\BlogController: ['@App\Service\Greeting']
+#    App\Controller\IndexController: ['@App\Service\Greeting']
 #    App\Service\Greeting: ['@monolog.logger']
 #    App\Service\Greeting:
 #      arguments:
 #        $message: '%$hello_message%'
+
+    app.greeting:
+      public: true
+      alias: App\Service\Greeting
