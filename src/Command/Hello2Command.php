@@ -11,7 +11,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class Hello2Command extends Command
 {
-    protected static $defaultName = 'Hello2Command';
+    protected static $defaultName = 'app:say-hello2';
 
     protected function configure()
     {
