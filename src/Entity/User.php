@@ -3,10 +3,14 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
+ * @UniqueEntity(fields="email", message="Этот email уже используется")
+ * @UniqueEntity(fields="username", message="Это имя уже используется")
  */
 class User implements UserInterface, \Serializable
 {
@@ -19,6 +23,8 @@ class User implements UserInterface, \Serializable
 
     /**
      * @ORM\Column(type="string", length=50, unique=true)
+     * @Assert\NotBlank(message="Поле не должно быть пустым")
+     * @Assert\Length(min="5", max="50", maxMessage="Поле не может превышать {max} символов",  minMessage="Поле не может быть меньше {min} символов")
      */
     private $username;
 
@@ -28,14 +34,25 @@ class User implements UserInterface, \Serializable
     private $password;
 
     /**
+     * @Assert\NotBlank(message="Поле не должно быть пустым")
+     * @Assert\Length(min="6", max="4096", maxMessage="Поле не может превышать {max} символов",  minMessage="Поле не может быть меньше {min} символов")
+     */
+    //это поле никогда не будет сохранено в бд
+    private $plainPassword;
+
+    /**
      * @ORM\Column(type="string", length=50, unique=true)
+     * @Assert\NotBlank(message="Поле не должно быть пустым")
+     * @Assert\Email(message="Поле должно соответствовать типо email")
      */
     private $email;
 
     /**
      * @ORM\Column(type="string", length=50)
+     * @Assert\NotBlank(message="Поле не должно быть пустым")
+     * @Assert\Length(min="4", max="50", maxMessage="Поле не может превышать {max} символов",  minMessage="Поле не может быть меньше {min} символов")
      */
-    private $fullname;
+    private $fullName;
 
 
     public function getId(): ?int
@@ -112,9 +129,9 @@ class User implements UserInterface, \Serializable
     /**
      * @return mixed
      */
-    public function getFullname()
+    public function getFullName()
     {
-        return $this->fullname;
+        return $this->fullName;
     }
 
     /**
@@ -126,13 +143,28 @@ class User implements UserInterface, \Serializable
     }
 
     /**
-     * @param mixed $fullname
+     * @param mixed $fullName
      */
-    public function setFullname($fullname): void
+    public function setFullName($fullName): void
     {
-        $this->fullname = $fullname;
+        $this->fullName = $fullName;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getPlainPassword()
+    {
+        return $this->plainPassword;
+    }
+
+    /**
+     * @param mixed $plainPassword
+     */
+    public function setPlainPassword($plainPassword): void
+    {
+        $this->plainPassword = $plainPassword;
+    }
 
 
 }

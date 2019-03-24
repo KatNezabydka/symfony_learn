@@ -7,6 +7,7 @@
  */
 
 namespace App\Controller;
+
 use App\Entity\MicroPost;
 use App\Form\MicroPostType;
 use App\Repository\MicroPostRepository;
@@ -20,6 +21,7 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @Route("/micro-post")
  */
+//Здесь все зависсимости писали вручную без использования  extends AbstractController
 class MicroPostController extends AbstractController
 {
     /**
@@ -39,12 +41,7 @@ class MicroPostController extends AbstractController
      */
     private $flashBag;
 
-    public function __construct(
-        MicroPostRepository $microPostRepository,
-        FormFactoryInterface $formFactory,
-        EntityManagerInterface $entityManager,
-        FlashBagInterface $flashBag
-    )
+    public function __construct(MicroPostRepository $microPostRepository, FormFactoryInterface $formFactory, EntityManagerInterface $entityManager, FlashBagInterface $flashBag)
     {
         $this->microPostRepository = $microPostRepository;
         $this->formFactory = $formFactory;
@@ -57,9 +54,7 @@ class MicroPostController extends AbstractController
      */
     public function index()
     {
-        return $this->render('micro-post/index.html.twig', [
-            'posts' =>$this->microPostRepository->findBy([],['time' => 'DESC'])
-        ]);
+        return $this->render('micro-post/index.html.twig', ['posts' => $this->microPostRepository->findBy([], ['time' => 'DESC'])]);
     }
 
     /**
@@ -71,15 +66,14 @@ class MicroPostController extends AbstractController
 
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()){
+        if ($form->isSubmitted() && $form->isValid()) {
 
             $this->entityManager->flush();
 
             return $this->redirectToRoute('micro_post_index');
         }
 
-        return $this->render('micro-post/add.html.twig',
-            ['form' => $form->createView()]);
+        return $this->render('micro-post/add.html.twig', ['form' => $form->createView()]);
 
     }
 
@@ -95,15 +89,14 @@ class MicroPostController extends AbstractController
         // валидация данных???
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()){
+        if ($form->isSubmitted() && $form->isValid()) {
             $this->entityManager->persist($microPost);
             $this->entityManager->flush();
 
             return $this->redirectToRoute('micro_post_index');
         }
 
-        return $this->render('micro-post/add.html.twig',
-            ['form' => $form->createView()]);
+        return $this->render('micro-post/add.html.twig', ['form' => $form->createView()]);
 
     }
 
@@ -125,8 +118,7 @@ class MicroPostController extends AbstractController
      */
     public function post(MicroPost $post)
     {
-        return $this->render('micro-post/post.html.twig',
-            ['post' => $post]);
+        return $this->render('micro-post/post.html.twig', ['post' => $post]);
 
     }
 
