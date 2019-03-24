@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\MicroPostRepository")
@@ -18,6 +19,8 @@ class MicroPost
 
     /**
      * @ORM\Column(type="string", length=280)
+     * @Assert\NotBlank(message="Поле не должно быть пустым")
+     * @Assert\Length(min="5", minMessage="Поле должно состоять миниум из 5ти символов")
      */
     private $text;
 
