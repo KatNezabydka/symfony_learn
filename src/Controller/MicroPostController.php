@@ -12,6 +12,7 @@ use App\Entity\MicroPost;
 use App\Form\MicroPostType;
 use App\Repository\MicroPostRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -59,9 +60,13 @@ class MicroPostController extends AbstractController
 
     /**
      * @Route("/edit/{id}", name="micro_post_edit")
+     * @Security("is_granted('edit', microPost)", message="Доступ запрещен")
      */
     public function edit(MicroPost $microPost, Request $request)
     {
+        // Разрешить редактировтаь только если есть доступ
+        $this->denyAccessUnlessGranted('edit', $microPost);
+
         $form = $this->formFactory->create(MicroPostType::class, $microPost);
 
         $form->handleRequest($request);
@@ -102,9 +107,13 @@ class MicroPostController extends AbstractController
 
     /**
      * @Route("/delete/{id}", name="micro_post_delete")
+     * @Security("is_granted('delete', microPost)", message="Доступ запрещен")
      */
     public function delete(MicroPost $microPost)
     {
+        // Разрешить удалять только если есть доступ
+//        $this->denyAccessUnlessGranted('delete', $microPost);
+
         $this->entityManager->remove($microPost);
         $this->entityManager->flush();
         // Сохраняем флеш сообщение в сессии
