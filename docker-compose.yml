@@ -1,0 +1,60 @@
+version: '3'
+
+services:
+  web:
+    build: .
+    environment:
+    - APACHE_RUN_USER=www-data
+    volumes:
+    - .:/var/www/html/
+    ports:
+    - 8080:80
+    restart: always
+    depends_on:
+    - db
+    working_dir: /var/www/html/
+
+  mariadb:
+    image: mariadb:10.3
+    restart: always
+    volumes:
+    - ./database:/var/lib/mysql
+    environment:
+      MYSQL_USER: root
+      MYSQL_ROOT_PASSWORD: 123456
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    links:
+    - mariadb:db
+    restart: always
+    ports:
+    - 8765:80
+    environment:
+      MYSQL_USER: root
+      MYSQL_ROOT_PASSWORD: 123456
+    depends_on:
+    - mariadb
+#
+#  adminer:
+#    image: adminer
+#    restart: always
+#    ports:
+#    - 6080:8080
+#    links:
+#    - postgres:postgres
+#    depends_on:
+#    - postgres
+#
+#  postgres:
+#    image: postgres:10
+#    restart: always
+#    environment:
+#      POSTGRES_DB: symfony
+#      POSTGRES_USER: root
+#      POSTGRES_PASSWORD: 123456
+#    volumes:
+#      - .db:/var/lib/postgresql/data
+#    ports:
+#      - 5433:5432
+
