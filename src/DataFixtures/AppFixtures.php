@@ -11,9 +11,47 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 class AppFixtures extends Fixture
 {
 
-    private const USERS = [['username' => 'katnezabydka', 'email' => 'katorifmmm@gmail.com', 'password' => '111111', 'fullName' => 'Kat Nezabydka'], ['username' => 'test_one', 'email' => 'test_one@gmail.com', 'password' => '111111', 'fullName' => 'Test One'], ['username' => 'test_two', 'email' => 'test_two@gmail.com', 'password' => '111111', 'fullName' => 'Test Two',], ['username' => 'test_three', 'email' => 'test_three@gmail.com', 'password' => '111111', 'fullName' => 'Test Three',],];
+    private const USERS = [
+        [
+            'username' => 'katnezabydka',
+            'email' => 'katorifmmm@gmail.com',
+            'password' => '111111',
+            'fullName' => 'Kat Nezabydka',
+            'roles' => [User::ROLE_ADMIN]
+        ],
+        [
+            'username' => 'test_one',
+            'email' => 'test_one@gmail.com',
+            'password' => '111111',
+            'fullName' => 'Test One',
+            'roles' => [User::ROLE_USER]
+        ],
+        [
+            'username' => 'test_two',
+            'email' => 'test_two@gmail.com',
+            'password' => '111111',
+            'fullName' => 'Test Two',
+            'roles' => [User::ROLE_USER]
+            ],
+        [
+            'username' => 'test_three',
+            'email' => 'test_three@gmail.com',
+            'password' => '111111',
+            'fullName' => 'Test Three',
+            'roles' => [User::ROLE_USER]
+            ]
+    ];
 
-    private const POST_TEXT = ['Hello, how are you?', 'It\'s nice sunny weather today', 'I need to buy some ice cream!', 'I wanna buy a new car', 'There\'s a problem with my phone', 'I need to go to the doctor', 'What are you up to today?', 'Did you watch the game yesterday?', 'How was your day?'];
+    private const POST_TEXT = [
+        'Hello, how are you?',
+        'It\'s nice sunny weather today',
+        'I need to buy some ice cream!',
+        'I wanna buy a new car',
+        'There\'s a problem with my phone',
+        'I need to go to the doctor', 'What are you up to today?',
+        'Did you watch the game yesterday?',
+        'How was your day?'
+    ];
 
     /**
      * @var UserPasswordEncoderInterface
@@ -56,7 +94,7 @@ class AppFixtures extends Fixture
             $user->setFullname($userData['fullName']);
             $user->setEmail($userData['email']);
             $user->setPassword($this->passwordEncoder->encodePassword($user, $userData['password']));
-
+            $user->setRoles($userData['roles']);
             $this->addReference($userData['username'], $user);
 
             $manager->persist($user);
