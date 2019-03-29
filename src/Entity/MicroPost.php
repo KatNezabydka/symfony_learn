@@ -7,9 +7,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\MicroPostRepository")
+ * @ORM\HasLifecycleCallbacks()
  */
-class MicroPost
-{
+//ORM\HasLifecycleCallbacks() - чтобы использовать события (LifeCircle)
+class MicroPost {
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -31,8 +32,9 @@ class MicroPost
 
     /**
      * @ORM\ManyToOne(targetEntity="User", inversedBy="posts")
-     * @ORM\JoinColumn()
+     * @ORM\JoinColumn(nullable=false)
      */
+    //@ORM\JoinColumn(nullable=false) показывает что отношение не может быть null
     private $user;
 
     /**
@@ -73,6 +75,14 @@ class MicroPost
     public function setTime($time): void
     {
         $this->time = $time;
+    }
+
+    /**
+     * @ORM\PrePersist()
+     */
+    public function setTimeOnPersist(): void
+    {
+        $this->time =  new \DateTime();
     }
 
     /**

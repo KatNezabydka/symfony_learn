@@ -9,6 +9,7 @@
 namespace App\Controller;
 
 use App\Entity\MicroPost;
+use App\Entity\User;
 use App\Form\MicroPostType;
 use App\Repository\MicroPostRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -23,8 +24,7 @@ use Symfony\Component\Routing\Annotation\Route;
  * @Route("/micro-post")
  */
 //Здесь все зависсимости писали вручную без использования  extends AbstractController
-class MicroPostController extends AbstractController
-{
+class MicroPostController extends AbstractController {
     /**
      * @var MicroPostRepository
      */
@@ -84,11 +84,16 @@ class MicroPostController extends AbstractController
 
     /**
      * @Route("/add", name="micro_post_add")
+     * @Security("is_granted('ROLE_USER')", message="Для добавления записи нужна авторизация")
      */
     public function add(Request $request)
     {
+        //@Security обеспечил доступ к этому методу только авторизированому пользователю
+        $user = $this->getUser();
         $microPost = new MicroPost();
-        $microPost->setTime(new \DateTime());
+        $microPost->setUser($user);
+        // если хотим время добавлять автоматически
+        // $microPost->setTime(new \DateTime());
 
         $form = $this->formFactory->create(MicroPostType::class, $microPost);
         // валидация данных???
@@ -112,7 +117,7 @@ class MicroPostController extends AbstractController
     public function delete(MicroPost $microPost)
     {
         // Разрешить удалять только если есть доступ
-//        $this->denyAccessUnlessGranted('delete', $microPost);
+        //        $this->denyAccessUnlessGranted('delete', $microPost);
 
         $this->entityManager->remove($microPost);
         $this->entityManager->flush();
@@ -120,6 +125,22 @@ class MicroPostController extends AbstractController
         $this->flashBag->add('notice', 'Пост был удален');
         return $this->redirectToRoute('micro_post_index');
 
+    }
+
+    /**
+     * @Route("/user/{username}", name="micro_post_user")
+     */
+    public function userPost(User $userWithPosts)
+    {
+        // находим посты, которые по 1му параметру (критерия) являются постами пользователей
+        return $this->render('micro-post/index.html.twig', [
+            //'posts' => $this->microPostRepository->findBy(
+            //    ['user' => $userWithPosts],
+            //    ['time' => 'DESC']
+            //)
+            // lazy load
+            'posts' => $userWithPosts->getPosts()
+        ]);
     }
 
     /**

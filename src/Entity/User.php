@@ -198,7 +198,7 @@ class User implements UserInterface, \Serializable
     /**
      * @return mixed
      */
-    public function getPosts()
+    public function  getPosts()
     {
         return $this->posts;
     }
