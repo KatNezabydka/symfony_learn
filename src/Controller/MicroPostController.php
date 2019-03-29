@@ -133,13 +133,14 @@ class MicroPostController extends AbstractController {
     public function userPost(User $userWithPosts)
     {
         // находим посты, которые по 1му параметру (критерия) являются постами пользователей
-        return $this->render('micro-post/index.html.twig', [
-            //'posts' => $this->microPostRepository->findBy(
-            //    ['user' => $userWithPosts],
-            //    ['time' => 'DESC']
-            //)
+        return $this->render('micro-post/user-post.html.twig', [
+            'posts' => $this->microPostRepository->findBy(
+                ['user' => $userWithPosts],
+                ['time' => 'DESC']
+            ),
+            'user' => $userWithPosts
             // lazy load
-            'posts' => $userWithPosts->getPosts()
+            //'posts' => $userWithPosts->getPosts()
         ]);
     }
 
