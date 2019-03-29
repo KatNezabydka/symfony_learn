@@ -13,8 +13,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @UniqueEntity(fields="email", message="Этот email уже используется")
  * @UniqueEntity(fields="username", message="Это имя уже используется")
  */
-class User implements UserInterface, \Serializable
-{
+class User implements UserInterface, \Serializable {
     const ROLE_USER = 'ROLE_USER';
     const ROLE_ADMIN = 'ROLE_ADMIN';
     /**
@@ -68,10 +67,30 @@ class User implements UserInterface, \Serializable
      */
     private $posts;
 
+    /**
+     * @ORM\ManyToMany(targetEntity="App\Entity\User", mappedBy="following")
+     */
+    private $followers;
+
+    /**
+     * @ORM\ManyToMany(targetEntity="App\Entity\User",  inversedBy="followers")
+     * @ORM\JoinTable(name="following",
+     *     joinColumns={
+     *          @ORM\JoinColumn(name="user_id", referencedColumnName="id")
+     *     },
+     *     inverseJoinColumns={
+     *          @ORM\JoinColumn(name="following_user_id", referencedColumnName="id")
+     *     }
+     *     )
+     */
+    private $following;
+
     // Doctrine никогда не использует конструктор, он нужен для формировния коллекций в связях (например один ко многим)
     public function __construct()
     {
         $this->posts = new ArrayCollection();
+        $this->followers = new ArrayCollection();
+        $this->following = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -81,7 +100,7 @@ class User implements UserInterface, \Serializable
 
     public function getRoles()
     {
-       return $this->roles;
+        return $this->roles;
     }
 
     /**
@@ -93,7 +112,6 @@ class User implements UserInterface, \Serializable
     }
 
 
-
     public function getPassword()
     {
         return $this->password;
@@ -101,7 +119,7 @@ class User implements UserInterface, \Serializable
 
     public function getSalt()
     {
-       return null;
+        return null;
     }
 
     public function getUsername()
@@ -120,7 +138,7 @@ class User implements UserInterface, \Serializable
             $this->id,
             $this->username,
             $this->password,
-            ]);
+        ]);
     }
 
     public function unserialize($serialized)
@@ -128,7 +146,8 @@ class User implements UserInterface, \Serializable
         list(
             $this->id,
             $this->username,
-            $this->password) = unserialize($serialized);
+            $this->password)
+            = unserialize($serialized);
     }
 
     /**
@@ -198,9 +217,25 @@ class User implements UserInterface, \Serializable
     /**
      * @return mixed
      */
-    public function  getPosts()
+    public function getPosts()
     {
         return $this->posts;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getFollowers()
+    {
+        return $this->followers;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getFollowing()
+    {
+        return $this->following;
     }
 
 
