@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -85,12 +86,18 @@ class User implements UserInterface, \Serializable {
      */
     private $following;
 
+    /**
+     * @ORM\ManyToMany(targetEntity="MicroPost", mappedBy="likedBy")
+     */
+    private $postsLiked;
+
     // Doctrine никогда не использует конструктор, он нужен для формировния коллекций в связях (например один ко многим)
     public function __construct()
     {
         $this->posts = new ArrayCollection();
         $this->followers = new ArrayCollection();
         $this->following = new ArrayCollection();
+        $this->postsLiked = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -223,7 +230,7 @@ class User implements UserInterface, \Serializable {
     }
 
     /**
-     * @return mixed
+     * @return Collection
      */
     public function getFollowers()
     {
@@ -231,12 +238,29 @@ class User implements UserInterface, \Serializable {
     }
 
     /**
-     * @return mixed
+     * @return Collection
      */
     public function getFollowing()
     {
         return $this->following;
     }
 
+    // если мы уже подписаны на пользователя, второй раз нельзя подписаться
+    public function follow(User $userToFollow)
+    {
+        if ($this->getFollowing()->contains($userToFollow)) {
+            return;
+        }
+        // many to many store
+        $this->getFollowing()->add($userToFollow);
+    }
+
+    /**
+     * @return Collection
+     */
+    public function getPostsLiked()
+    {
+        return $this->postsLiked;
+    }
 
 }

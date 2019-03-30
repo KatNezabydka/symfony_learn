@@ -29,8 +29,7 @@ class FollowingController extends AbstractController {
         $currentUser = $this->getUser();
         // Только если мы не пытаемся подписаться на самого себя
         if ($userToFollow->getId() !== $currentUser->getId()) {
-            // many to many store
-            $currentUser->getFollowing()->add($userToFollow);
+            $currentUser->follow($userToFollow);
 
             $this->getDoctrine()->getManager()->flush();
 
