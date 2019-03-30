@@ -12,6 +12,7 @@ use App\Entity\MicroPost;
 use App\Entity\User;
 use App\Form\MicroPostType;
 use App\Repository\MicroPostRepository;
+use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -53,9 +54,31 @@ class MicroPostController extends AbstractController {
     /**
      * @route("/", name="micro_post_index")
      */
-    public function index()
+    public function index(UserRepository $userRepository)
     {
-        return $this->render('micro-post/index.html.twig', ['posts' => $this->microPostRepository->findBy([], ['time' => 'DESC'])]);
+        //1) Показываем посты тех пользователей на который подписаны
+        //2) Если не подписаны не на кого - показываем пользователей, на которых можно подписаться
+
+        $currentUser = $this->getUser();
+
+        $usersToFollow = [];
+        // авторизирован ли пользователь или нет
+        if ($currentUser instanceof User) {
+            $posts = $this->microPostRepository->findAllByUsers($currentUser->getFollowing());
+
+            $usersToFollow = count($posts) === 0 ? $userRepository->findAllWithMoreThan5PostsExceptUser($currentUser) : [];
+        }
+        else {
+            $posts = $this->microPostRepository->findBy(
+                [],
+                ['time' => 'DESC']
+            );
+        }
+        return $this->render('micro-post/index.html.twig', [
+            'posts' => $posts,
+            'usersToFollow' => $usersToFollow
+        ]);
+
     }
 
     /**
@@ -138,7 +161,7 @@ class MicroPostController extends AbstractController {
                 ['user' => $userWithPosts],
                 ['time' => 'DESC']
             ),
-            'user' => $userWithPosts
+            'user'  => $userWithPosts
             // lazy load
             //'posts' => $userWithPosts->getPosts()
         ]);
