@@ -19,7 +19,6 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route("/likes")
- * @Security("is_granted('ROLE_USER')")
  */
 class LikesController extends AbstractController {
 
