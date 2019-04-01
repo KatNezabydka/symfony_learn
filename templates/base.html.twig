@@ -6,6 +6,8 @@
     {% block stylesheets %}
         {#<link rel="stylesheet" href="{{ encore_entry_link_tags('css/app') }}">#}
         <link rel="stylesheet" href="{{ asset('build/css/app.css') }}">
+        <link rel="stylesheet"
+              href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     {% endblock %}
 </head>
 <body class="bg-light">
@@ -25,13 +27,20 @@
     <div class="order-2 order-md-1">
         <ul class="navbar-nav px-3">
             {% if is_granted('ROLE_USER') %}
+                <li class="nav-item text-nowrap border-secondary">
+                    <a class="nav-link" href="">Notifications
+                        <span class="badge badge-light" id="notification-count">
+                        <i class="fa fa-circle fa-circle-o-notch fa-spin"></i>
+                        </span>
+                    </a>
+                </li>
                 <li class="nav-item text-nowrap">
                     <a class="nav-link"
                        href="{{ path('micro_post_user', {'username': app.user.username} ) }}">{{ app.user.fullName }}</a>
                 </li>
                 <li class="nav-item text-nowrap">
                     <a class="nav-link"
-                       href="{{logout_path() }}">Sign out</a>
+                       href="{{ logout_path() }}">Sign out</a>
                 </li>
             {% else %}
                 <li class="nav-item text-nowrap">
@@ -50,8 +59,27 @@
 
 </main>
 {% block javascripts %}
-    {#<script src="{{ encore_entry_script_tags('js/app') }}"></script>#}
     <script src="{{ asset('build/js/app.js') }}"></script>
+
+    {% if is_granted('ROLE_USER') %}
+    <script>
+        {# будет обновлять данные по уведомлениям каждые 5 сек - плохая практика при больших нагрузках - лучше сокеты#}
+        function fetchNotificationCount() {
+            fetch(
+                '{{ path('notification_unread') }}',
+                {'credentials': 'include'}
+            ).then(function (response) {
+                response.json().then(function (json) {
+                    document.getElementById('notification-count').innerText = json.count;
+                    setTimeout(fetchNotificationCount, 5000)
+                }).catch(function (reason) {
+                })
+            })
+        }
+
+      fetchNotificationCount();
+    </script>
+    {% endif %}
 {% endblock %}
 </body>
 </html>

@@ -50,5 +50,5 @@ class LikeNotification extends Notification {
         $this->likedBy = $likedBy;
     }
 
-    
+
 }
