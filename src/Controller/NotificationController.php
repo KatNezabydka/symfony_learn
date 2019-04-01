@@ -9,6 +9,7 @@
 namespace App\Controller;
 
 
+use App\Entity\Notification;
 use App\Repository\NotificationRepository;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -36,10 +37,49 @@ class NotificationController extends AbstractController {
      */
     public function unReadCount()
     {
-       return new JsonResponse(
+        return new JsonResponse(
             [
                 'count' => $this->notificationRepository->findUnseenByUser($this->getUser())
             ]
         );
     }
+
+
+    /**
+     * @Route("/acknowledge-all", name="notifications_acknowledge_all")
+     */
+    public function acknowledgeAll()
+    {
+        $this->notificationRepository->markAllAsReadByUser($this->getUser());
+        $this->getDoctrine()->getManager()->flush();
+        return $this->redirectToRoute('notifications_all');
+    }
+
+
+    /**
+     * @Route("/acknowledge{id}", name="notifications_acknowledge")
+     */
+    public function acknowledge(Notification $notification)
+    {
+        $notification->setSeen(true);
+        $this->getDoctrine()->getManager()->flush();
+        return $this->redirectToRoute('notifications_all');
+    }
+
+    /**
+     * @Route("/all", name="notifications_all")
+     */
+    public function notifications()
+    {
+        return $this->render('notification/notifications.html.twig', [
+            'notifications' => $this->notificationRepository->findBy([
+                'seen' => false,
+                'user' => $this->getUser()
+            ])
+        ]);
+    }
+
+
+
+
 }
