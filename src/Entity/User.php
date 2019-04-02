@@ -87,6 +87,16 @@ class User implements UserInterface, \Serializable {
     private $following;
 
     /**
+     * @ORM\Column(type="string", nullable=true, length=30)
+     */
+    private $confirmationToken;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $enabled;
+
+    /**
      * @ORM\ManyToMany(targetEntity="MicroPost", mappedBy="likedBy")
      */
     private $postsLiked;
@@ -98,6 +108,7 @@ class User implements UserInterface, \Serializable {
         $this->followers = new ArrayCollection();
         $this->following = new ArrayCollection();
         $this->postsLiked = new ArrayCollection();
+        $this->enabled = false;
     }
 
     public function getId(): ?int
@@ -117,7 +128,6 @@ class User implements UserInterface, \Serializable {
     {
         $this->roles = $roles;
     }
-
 
     public function getPassword()
     {
@@ -144,7 +154,7 @@ class User implements UserInterface, \Serializable {
         return serialize([
             $this->id,
             $this->username,
-            $this->password,
+            $this->password
         ]);
     }
 
@@ -153,7 +163,9 @@ class User implements UserInterface, \Serializable {
         list(
             $this->id,
             $this->username,
-            $this->password)
+            $this->password,
+            $this->password
+            )
             = unserialize($serialized);
     }
 
@@ -262,5 +274,54 @@ class User implements UserInterface, \Serializable {
     {
         return $this->postsLiked;
     }
+
+    /**
+     * @param mixed $following
+     */
+    public function setFollowing($following): void
+    {
+        $this->following = $following;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getConfirmationToken()
+    {
+        return $this->confirmationToken;
+    }
+
+    /**
+     * @param mixed $confirmationToken
+     */
+    public function setConfirmationToken($confirmationToken): void
+    {
+        $this->confirmationToken = $confirmationToken;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getEnabled()
+    {
+        return $this->enabled;
+    }
+
+    /**
+     * @param mixed $enabled
+     */
+    public function setEnabled($enabled): void
+    {
+        $this->enabled = $enabled;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isEnabled(): bool
+    {
+        return $this->getEnabled();
+    }
+
 
 }
