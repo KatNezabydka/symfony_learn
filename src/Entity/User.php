@@ -11,8 +11,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
- * @UniqueEntity(fields="email", message="Этот email уже используется")
- * @UniqueEntity(fields="username", message="Это имя уже используется")
+ * @UniqueEntity(fields="email", message="This e-mail is already used")
+ * @UniqueEntity(fields="username", message="This e-mail is already used")
  */
 class User implements UserInterface, \Serializable {
     const ROLE_USER = 'ROLE_USER';
@@ -26,7 +26,7 @@ class User implements UserInterface, \Serializable {
 
     /**
      * @ORM\Column(type="string", length=50, unique=true)
-     * @Assert\NotBlank(message="Поле не должно быть пустым")
+     * @Assert\NotBlank(message="Field must be 50 characters max")
      * @Assert\Length(min="5", max="50", maxMessage="Поле не может превышать {max} символов",  minMessage="Поле не может быть меньше {min} символов")
      */
     private $username;
@@ -163,10 +163,8 @@ class User implements UserInterface, \Serializable {
         list(
             $this->id,
             $this->username,
-            $this->password,
             $this->password
-            )
-            = unserialize($serialized);
+            ) = unserialize($serialized);
     }
 
     /**
