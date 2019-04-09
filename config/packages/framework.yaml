@@ -9,7 +9,7 @@ framework:
 #    сохранить сессию в бд
     session:
         handler_id: Symfony\Component\HttpFoundation\Session\Storage\Handler\PdoSessionHandler
-        save_path: '%kernel.cache_dir%/sessions'
+#        save_path: '%kernel.cache_dir%/sessions'
 #        handler_id: ~
         cookie_secure: auto
         cookie_samesite: lax

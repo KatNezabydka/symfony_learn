@@ -2,42 +2,26 @@
 /**
  * Created by PhpStorm.
  * User: Kat
- * Date: 01.04.2019
- * Time: 23:07
+ * Date: 09.04.2019
+ * Time: 11:40
  */
 
 namespace App\Event;
 
 
-use App\Entity\UserPreferences;
-use App\Mailer\Mailer;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpKernel\Event\GetResponseEvent;
+use Symfony\Component\HttpKernel\KernelEvents;
 
-class UserSubscriber implements EventSubscriberInterface {
+class LocalSubscriber implements EventSubscriberInterface {
 
-
-    /**
-     * @var Mailer
-     */
-    private $mailer;
-    /**
-     * @var EntityManagerInterface
-     */
-    private $entityManager;
     /**
      * @var string
      */
     private $defaultLocale;
 
-    public function __construct(
-        Mailer $mailer,
-        EntityManagerInterface $entityManager,
-        string $defaultLocale)
+    public function __construct($defaultLocale = 'en')
     {
-
-        $this->mailer = $mailer;
-        $this->entityManager = $entityManager;
         $this->defaultLocale = $defaultLocale;
     }
 
@@ -62,20 +46,26 @@ class UserSubscriber implements EventSubscriberInterface {
     public static function getSubscribedEvents()
     {
         return [
-            UserRegisterEvent::NAME => 'onUserRegister'
+            KernelEvents::REQUEST => [
+                'onKernelRequest',
+                20
+            ]
         ];
     }
+    // Установить язык
+    public function onKernelRequest(GetResponseEvent $event){
+        $request = $event->getRequest();
 
-    public function onUserRegister(UserRegisterEvent $event)
-    {
-        $preferences = new UserPreferences();
-        $preferences->setLocale($this->defaultLocale);
+        if (!$request->hasPreviousSession()) {
+            return;
+        }
 
-        $user = $event->getRegisterUser();
-        $user->setPreferences($preferences);
+        if ($locale = $request->attributes->get('_locale')){
+            $request->getSession()->set('_locale', $locale);
+        } else {
+            $request->setLocale( $request->getSession()
+                ->get('_locale', $this->defaultLocale));
+        }
 
-        $this->entityManager->flush();
-
-        $this->mailer->sendConfirmationEmail($event->getRegisterUser());
     }
 }

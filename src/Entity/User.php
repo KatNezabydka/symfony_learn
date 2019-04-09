@@ -97,6 +97,12 @@ class User implements UserInterface, \Serializable {
     private $enabled;
 
     /**
+     * @ORM\OneToOne(targetEntity="App\Entity\UserPreferences", cascade={"persist"})
+     */
+    // cascade={"persist"} - когда создаем пользователя, автоматически в другой таблице создается запись
+    private $preferences;
+
+    /**
      * @ORM\ManyToMany(targetEntity="MicroPost", mappedBy="likedBy")
      */
     private $postsLiked;
@@ -319,6 +325,22 @@ class User implements UserInterface, \Serializable {
     public function isEnabled(): bool
     {
         return $this->getEnabled();
+    }
+
+    /**
+     * @return UserPreferences|null
+     */
+    public function getPreferences()
+    {
+        return $this->preferences;
+    }
+
+    /**
+     * @param mixed $preferences
+     */
+    public function setPreferences($preferences): void
+    {
+        $this->preferences = $preferences;
     }
 
 

@@ -4,7 +4,7 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
-    locale: 'fr'
+    locale: 'en'
     hello_message: 'Hello from service'
     email_from: '%env(MAILER_FROM)%'
 
@@ -62,6 +62,11 @@ services:
       arguments:
           - !service { class: PDO, factory: 'database_connection:getWrappedConnection' }
           - { lock_mode: 1 }
-#        - 'mysql:dbname=session_db'
-#        - { db_username: user, db_password: my_password }
 
+    App\Event\UserSubscriber:
+      arguments:
+        $defaultLocale: '%locale%'
+
+    App\Event\LocalSubscriber:
+      arguments:
+        - '%locale%'
